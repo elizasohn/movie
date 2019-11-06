@@ -1,3 +1,5 @@
+
+
 function Marquee() {
   this.movies = [];
   this.movieCount = 0;
@@ -26,7 +28,7 @@ Marquee.prototype.getShowings = function(user) {
     if (user.age >= movie.minimumAge) {
       var movieTimes = [movie.title, movie.id, []];
       movie.showings.forEach(function(showing) {
-          if (user.timeRange === "eve") {
+          if (user.timeRange === "evening") {
             if (showing > 16) movieTimes[2].push(showing);
           } else if (user.timeRange === "matinee") {
             if (showing <= 16) movieTimes[2].push(showing);
@@ -52,6 +54,23 @@ function User(age, timeRange) {
   this.timeRange = timeRange;
 }
 
+var userChoice = {
+  time: 10,
+  id:2
+}
+
+function getTicket(id, time, age) {
+  console.log(time);
+  var thisMovie = bizMarquee.findMovie(id);
+  var firstRun = thisMovie.firstRelease;
+  var isSenior = age >= 65;
+  var isMatinee = time <= 16;
+  var ticketPrice = 5;
+  if (firstRun) ticketPrice += 2;
+  if (isSenior) ticketPrice -= 2;
+  if (isMatinee) ticketPrice -= 1;
+  return ticketPrice;
+}
 
 var movie1 = new Movie("Abominable", 0, true, [10, 12, 16]);
 var movie2 = new Movie("Hustlers", 17, false, [16, 19, 22]);
@@ -65,29 +84,77 @@ bizMarquee.addMovie(movie2);
 bizMarquee.addMovie(movie3);
 bizMarquee.addMovie(movie4);
 
-var user1 = new User(16, "all");
+var user;
 
-console.log(bizMarquee);
-console.log(bizMarquee.getShowings(user1));
-/*
-
-
-
-
-
-
-
-*/
+var timeTranslator = {
+  10: "10:00 AM",
+  11: "11:00 AM",
+  12: "12:00 PM",
+  13: "1:00 PM",
+  14: "2:00 PM",
+  15: "3:00 PM",
+  16: "4:00 PM",
+  17: "5:00 PM",
+  18: "6:00 PM",
+  19: "7:00 PM",
+  20: "8:00 PM",
+  21: "9:00 PM",
+  22: "10:00 PM",
+}
 
 
 
 $(document).ready(function() {
 
+  $("#enterUser").click(function(){
+    var age = $("#ageInput").val();
+    var timeRange = $("#showingSelection").val();
+    user = new User(age, timeRange);
+    var showingOptions = bizMarquee.getShowings(user);
+    var listingHtml = makeListings(showingOptions);
+    $('.userInputForm').hide();
+    $(".showtime").append(listingHtml);
+  })
+
+  $(".showtime").on("click", "li", function(){
+    var id = this.value;
+    var time = this.getAttribute("time");
+    var age = user.age;
+    var thisPrice = (getTicket(id, time, age));
+    alert(`Your ticket price is $${thisPrice}.00`)
+  })
+
+
+
+
+
+
+
 
 });
 
 
-// "Abominable", true, 0
-// "Hustlers", false, 17
-// "Brittany Runs a Marathon", true, 15
-// "Lion King", false, 0
+function makeListings(showingOptions) {
+  var result = '';
+  showingOptions.forEach(function(movie) {
+    var movieName = movie[0];
+    var movieId = movie[1];
+    var times = movie[2];
+    var timeListItems = times.map(function(t) {
+      return `<li value="${movieId}" time="${t}">${timeTranslator[t]}</li>`
+    });
+    result += `
+      <div class="card">
+        <h4>${movieName}</h4>
+        <ul>
+          ${timeListItems.join('')}
+        </ul>
+      </div>
+
+    `
+
+  })
+
+
+  return result;
+}
