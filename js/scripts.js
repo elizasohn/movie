@@ -60,7 +60,6 @@ var userChoice = {
 }
 
 function getTicket(id, time, age) {
-  console.log(time);
   var thisMovie = bizMarquee.findMovie(id);
   var firstRun = thisMovie.firstRelease;
   var isSenior = age >= 65;
@@ -123,12 +122,6 @@ $(document).ready(function() {
     var thisPrice = (getTicket(id, time, age));
     alert(`Your ticket price is $${thisPrice}.00`)
   })
-
-
-
-
-
-
 
 
 });
